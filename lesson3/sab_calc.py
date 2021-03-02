@@ -8,35 +8,43 @@ from tkinter import font
 
 class MyApp:
 
-    def insKey(self, znak):
+    def insKey(self, sign):
+        sign_list = ['+','-','*','^','/','.','%']
+        number_list = ['0','1','2','3','4','5','6','7','8','9']
         if self.x == "EOF":
             self.x = ""
-        if znak == '=':
+        if sign == '=':
             try:
                 self.x = eval(f"{self.x}")
                 self.x = str(self.x)
             except:
                 self.x = "EOF"
-        elif znak == 'C':
+        elif sign in sign_list:
+            if self.x == "":
+                return
+            if self.x[-1] in number_list:
+                if sign == '^':
+                    self.x += "**"
+                else:   
+                    self.x += sign
+        elif sign == 'C':
             self.x = ""
-        elif znak == '√':
+        elif sign == '√':
             try:
                 self.x = eval(f"{self.x}**0.5")
                 self.x = str(self.x)
             except:
                 self.x = "EOF"
-        elif znak == '±':
+        elif sign == '±':
             try:
                 self.x = eval(f"{self.x}")
                 self.x = str(self.x*-1)
             except:
                 self.x = "EOF"
-        elif znak =='^':
-            self.x += '**'
-        elif znak == '←':
+        elif sign == '←':
             self.x = self.x[:-1]
         else:
-            self.x += znak
+            self.x += sign
         
         self.la['text'] = f"{self.x}"
 
