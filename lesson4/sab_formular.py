@@ -172,7 +172,7 @@ class NewWindow():
         self.Borrower.delete(1.0, END)
         self.DateBor.delete(1.0, END)
         self.Status.delete(1.0, END)
-
+#
         self.Id.insert(END, data[self._row][0])
         self.Book.insert(END, data[self._row][1])
         self.Author.insert(END, data[self._row][2])
