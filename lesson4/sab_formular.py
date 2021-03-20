@@ -2,28 +2,32 @@
 
 from tkinter import *
 from tkinter import tix
+import time
 import MultiListbox as table
 
-x = 800
+x = 900
 y = 600
 
 data = [
         # Jméno, Příjmení, RČ,       ulice,         čp,   město,     PSČ,  poznámka
-       ["BLS-0001", "The Four Winds","Kristin Hannah",False, 'Tom Wool', "3/25/2021",True]]
+       ["BLS-0001", "The Four Winds","Kristin Hannah",False, 'Tom Wool', "3/25/2021",True]
+       ]
 
 
 
 
 class App(object):
 
+    def refresh(self):
+        self._mlb.delete(0,END)
+        for i in range(len(data)): 
+            self._mlb.insert(END, (data[i][0], data[i][1], data[i][2],data[i][3],data[i][4],data[i][5],data[i][6]))
+
     def _from_rgb(self,rgb):
         return "#%02x%02x%02x" % rgb   
 
     def __init__(self, master):
-        self.master = master
-
-
-        # form - TODO
+        self.master = master    
         self.opened = False
         #FRAMES
         self.fLeft = Frame(master)
@@ -34,8 +38,7 @@ class App(object):
         self.right = Frame(master)
         self.right.pack(side=LEFT,fill=BOTH,expand=True)
         self.fBotBut = Frame(self.right)
-        self.dir = IntVar()
-        self.dir.set(1) 
+
         book_image = PhotoImage(file=r"bookmark_208px.png").subsample(2)
         self.radio_button_1 = Button(self.fLeft, image=book_image, bg=self._from_rgb((191, 206, 26)))
         self.radio_button_1.image = book_image
@@ -58,54 +61,77 @@ class App(object):
         self.photolabel.place(relx=0.97, rely=0.95, anchor="se")
         self.photolabel.image = home_image
 
-        
 
-
-        self._mlb = table.MultiListbox(self.right, (('ID-number', 20), ('Books', 20), ('Author', 12), ('Borrowed', 12), ('Borrowed until', 12), ('Status', 12)))
-
-        for i in range(len(data)):
-            self._mlb.insert(END, (data[i][0], data[i][1], data[i][2],data[i][3],data[i][4],data[i][5],data[i][6]))
+        self._mlb = table.MultiListbox(self.right, (('ID-number', 20), ('Books', 20), ('Author', 12), ('Borrowed', 12),('Borrower', 12), ('Borrowed until', 12), ('Status', 12)))
+        self.refresh()
         self._mlb.subscribe(self._edit)
         self.loadimage = PhotoImage(file="button.png")
-        self.roundedbutton = Button(self.right, image=self.loadimage)
+        
+        self.roundedbutton = Button(self.right, image=self.loadimage,command=self.new_user)
         self.roundedbutton["border"] = "0"
         self.roundedbutton.pack(side="top")
-        #self.button4= Button(self.right, text="Manage BOOKS",font = "Verdana 20",bg= ,fg='white',border=2)
-        #self.button4.pack(expand=True,side=TOP,fill=X,padx=100)
+        self.refreshbutton = Button(self.right,text="refresh",height = 3,width=10,font="Verdana 12",command=self.refresh,bg=self._from_rgb((42, 157, 143)),fg='white').pack(side="right",expand=True,fill=X,padx=10)
         self._mlb.pack(expand=True,anchor=N,fill=BOTH,pady=20,padx=15)
 
     def _edit(self, row):
         self._row=row
-        if self.opened == False:
-            self.master.withdraw()
-            self.newWindow = Toplevel(self.master)
-            self.newWindow.geometry(f"{x}x400")
-            bb = NewWindow(self.newWindow,self.master,self._row)
-            self.newWindow.mainloop()
-        self.opened = True
+        self.new_window()
+    
+    def new_user(self):
+        self._row=NONE
+        self.new_window()
 
-        #print (f"{data[self._row][0]} {data[self._row][1]}")
+    def new_window(self):
+        self.master.withdraw()
+        self.newWindow = Toplevel(self.master)
+        self.newWindow.geometry(f"{x}x400")
+        bb = NewWindow(self.newWindow,self.master,self._row)
+        self.newWindow.mainloop()
 
 class NewWindow():
     def _from_rgb(self,rgb):
         return "#%02x%02x%02x" % rgb   
 
+    def check(self):
+        if self.Id.get("1.0",'end-1c') == "":
+            print("id was not entered!")
+            return False
+        if self.Book.get("1.0",'end-1c') == "":
+            print("Book was not entered!")
+            return False
+        if self.Author.get("1.0",'end-1c') == "":
+            print("Author was not entered!")
+            return False
+
+    def confirm_user(self):
+        if self.check() == False:
+            return
+        self.user = [self.Id.get("1.0",'end-1c'),self.Book.get("1.0",'end-1c'),self.Author.get("1.0",'end-1c'),self.Borrowed.get("1.0",'end-1c'),self.Borrower.get("1.0",'end-1c'),self.DateBor.get("1.0",'end-1c'),self.Status.get("1.0",'end-1c')]
+        self.manage_user()
+        self.old_window.deiconify() 
+        self.master.withdraw()
+
+    def manage_user(self):
+        i = 0
+        for row in data:
+            if row[0] == self.user[0]:
+                data.pop(i)
+            i = i+1
+        data.append(self.user)
+
+    def close_window(self): 
+        i = 0
+        for row in data:
+            if row[0] == self.Id.get("1.0",'end-1c'):
+                data.pop(i)
+            i = i+1
+        self.old_window.deiconify()
+        self.master.withdraw()
+        
     def __init__(self, master,old_window,row):
-        print (f"{data[row][0]} {data[row][1]}")
-        #old_window.deiconify()
+        self.old_window = old_window
         self.master = master
         self._row = row
-        self._jmeno = StringVar()
-        self._surname = StringVar()
-        self._birth_number = StringVar()
-        self._street = StringVar()
-        self._number = StringVar()
-        self._city = StringVar()
-        self._zip = StringVar()
-
-        # form - TODO
-
-        #FRAMES
         self.fLeft = Frame(master)
         self.fTop = Frame(master,borderwidth = 5)
         self.fTop.config(bd=4, relief=GROOVE)
@@ -113,7 +139,6 @@ class NewWindow():
         self.fTop.pack(fill=X)
         self.fBasicInfo = Frame(master)
         self.fNextInfo = Frame(master, bg = 'red')
-                #PRINT LIST INFO
         self.right = Frame(master)
         self.right.pack(side=LEFT,fill=BOTH,expand=True)
         self.righter = Frame(master)
@@ -172,17 +197,21 @@ class NewWindow():
         self.Borrower.delete(1.0, END)
         self.DateBor.delete(1.0, END)
         self.Status.delete(1.0, END)
-#
-        self.Id.insert(END, data[self._row][0])
-        self.Book.insert(END, data[self._row][1])
-        self.Author.insert(END, data[self._row][2])
-        self.Borrowed.insert(END, data[self._row][3])
-        self.Borrower.insert(END, data[self._row][4])
-        self.DateBor.insert(END, data[self._row][5])
-        self.Status.insert(END, data[self._row][6])
+#           
+        if self._row != NONE: 
+            self.Id.insert(END, data[self._row][0])
+            self.Id.config(state=DISABLED)
+            self.Book.insert(END, data[self._row][1])
+            self.Author.insert(END, data[self._row][2])
+            self.Borrowed.insert(END, data[self._row][3])
+            self.Borrower.insert(END, data[self._row][4])
+            self.DateBor.insert(END, data[self._row][5])
+            self.Status.insert(END, data[self._row][6])
 
-        self.confirm_button = Button(self.righter, text='CONFIRM', bg='green').pack()
-        self.delete_button = Button(self.righter, text='DELETE', bg='red').pack()
+        self.confirm_button = Button(self.righter, text='CONFIRM', bg='green',command =self.confirm_user,width=12,height=3).pack(pady=40)
+        self.delete_button = Button(self.righter, text='DELETE', bg='red',command=self.close_window,width=12,height=3).pack(pady=40)
+    
+  
              
 def main():
     root = tix.Tk()

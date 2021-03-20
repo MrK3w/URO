@@ -2,7 +2,6 @@
 
 from tkinter import *
 from collections import defaultdict
- 
 class Observable(object):
  
     def __init__ (self):
