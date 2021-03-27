@@ -30,7 +30,7 @@ class MultiListbox(Frame, Observable):
             frame = Frame(self); frame.pack(side=LEFT, expand=YES, fill=BOTH)
             Label(frame, text=l, borderwidth=1, relief=RAISED).pack(fill=X)
             lb = Listbox(frame, width=w, borderwidth=0, selectborderwidth=0,
-                relief=FLAT, exportselection=FALSE)
+                relief=FLAT, exportselection=FALSE,font='verdana 12')
             lb.pack(expand=YES, fill=BOTH)
             self.lists.append(lb)
             lb.bind('<B1-Motion>', lambda e, s=self: s._select(e.y))
